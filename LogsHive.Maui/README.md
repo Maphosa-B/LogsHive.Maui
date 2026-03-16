@@ -32,14 +32,15 @@ X-Api-Key: your_api_key  (optional - you control auth on your own server)
   "projectId": "your_project_id_here",
   "exceptionType": "System.NullReferenceException",
   "message": "Object reference not set to an instance of an object.",
-  "stackTrace": "   at MyApp.HomePage.LoadData() ...",
+  "stackTrace": "at MyApp.HomePage.LoadData()",
   "source": "MyApp.HomePage",
   "platform": "Android",
   "operatingSystem": "Android 14 (API 34)",
   "appVersion": "1.0.3",
   "deviceModel": "Samsung Galaxy S23",
   "capturedAt": "2026-03-16T10:45:00Z",
-  "logMessage": null
+  "logMessage": null,
+  "tags": {}
 }
 ```
 
@@ -53,12 +54,17 @@ Let us handle the infrastructure. Get a dashboard, alerts, and error grouping ou
 
 The SaaS API is hosted at `https://api.logshive.io`. You only need your API key and project ID - the URL is handled automatically by the SDK when `Mode = LogsHiveMode.SaaS`.
 
-| Tier | Price | Events/month | Retention |
-|---|---|---|---|
-| Free | R0 | 5 000 | 24 hours |
-| Starter | R100/mo | 30 000 | 30 days |
-| Pro | R300/mo | 100 000 | 90 days |
-| Enterprise | R1 500+/mo | Custom | Custom |
+## Pricing
+
+## Pricing
+
+| Plan | Price | Events / Month | Retention | Best For |
+|-----|------|---------------|-----------|---------|
+| Free | $0 | 5,000 | 7 days | Personal projects, small apps |
+| Starter | $5 / month | 30,000 | 30 days | Indie developers and small SaaS |
+| Pro | $15 / month | 100,000 | 90 days | Growing applications |
+| Growth | $40 / month | 500,000 | 90 days | Production SaaS products |
+| Enterprise | Custom | Custom | Custom | Large teams and high-volume systems |
 
 Top-up available at R100 once-off for +50 000 events in the current period.
 
