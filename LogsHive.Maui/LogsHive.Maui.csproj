@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
@@ -24,11 +24,25 @@
 		<PackageTags>maui;logging;crash-reporting;monitoring;error-tracking</PackageTags>
 		<RepositoryUrl>https://github.com/logshive/logshive-maui</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Title>Maui Logs Hive</Title>
 	</PropertyGroup>
+
+	<PropertyGroup>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+	</ItemGroup>
+
+
+	<!-- Ensure README and icon are packed -->
+	<ItemGroup>
+		<None Include="README.md" Pack="true" PackagePath="\"/>
 	</ItemGroup>
 
 </Project>
