@@ -10,37 +10,70 @@ public enum LogsHiveMode
 }
 
 /// <summary>
-/// Configuration options built via the fluent builder.
+/// Controls whether the SDK is active and how it behaves.
+/// </summary>
+public enum LogsHiveEnvironmentType
+{
+    /// <summary>
+    /// SDK is inactive. No events are sent or queued.
+    /// All activity is written to Debug output only.
+    /// Use during development and testing.
+    /// </summary>
+    Debug,
+
+    /// <summary>
+    /// SDK is active. Events are sent to the API.
+    /// Use in release / production builds.
+    /// </summary>
+    Production
+}
+
+/// <summary>
+/// Configuration options passed to the LogsHive SDK via the options delegate.
 /// </summary>
 public sealed class LogsHiveOptions
 {
-    internal LogsHiveMode Mode { get; set; } = LogsHiveMode.SaaS;
+    /// <summary>
+    /// Deployment mode. Use <see cref="LogsHiveMode.SaaS"/> for the hosted service
+    /// or <see cref="LogsHiveMode.SelfHosted"/> for your own infrastructure.
+    /// Default: SaaS.
+    /// </summary>
+    public LogsHiveMode Mode { get; set; } = LogsHiveMode.SaaS;
 
     /// <summary>
-    /// API key sent as X-Api-Key header. Required for SaaS; optional for SelfHosted.
+    /// Controls whether the SDK sends events.
+    /// Default: Debug (no events sent).
     /// </summary>
-    internal string? ApiKey { get; set; }
+    public LogsHiveEnvironmentType Environment { get; set; } = LogsHiveEnvironmentType.Debug;
 
     /// <summary>
-    /// Base URL for the LogsHive API.
-    /// SaaS default: https://api.logshive.io
-    /// SelfHosted: supplied by the caller.
+    /// API key sent as the X-Api-Key header.
+    /// Required for SaaS; optional for SelfHosted.
     /// </summary>
-    internal string BaseUrl { get; set; } = "https://api.logshive.io";
+    public string? ApiKey { get; set; }
+
+    /// <summary>
+    /// Unique project identifier. Routes events to the correct project
+    /// on both SaaS and self-hosted instances.
+    /// </summary>
+    public string ProjectId { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Base URL for a self-hosted LogsHive API instance.
+    /// Only required when <see cref="Mode"/> is <see cref="LogsHiveMode.SelfHosted"/>.
+    /// Example: https://logs.yourcompany.com
+    /// </summary>
+    public string? SelfHostedUrl { get; set; }
 
     /// <summary>
     /// Human-readable name for this application, included in every payload.
     /// </summary>
-    internal string AppName { get; set; } = "UnknownApp";
+    public string AppName { get; set; } = "UnknownApp";
 
     /// <summary>
-    /// When true the SDK is active. When false all calls are no-ops.
-    /// Default: false (debug mode â€” opt-in to production).
+    /// Global tags attached to every event captured by this app.
+    /// Useful for environment, tenant, build type, or any static context.
+    /// Per-capture tags are merged on top of these — per-capture wins on conflict.
     /// </summary>
-    internal bool IsProduction { get; set; } = false;
-
-    /// <summary>
-    /// When true, extra diagnostic output is written to Debug.
-    /// </summary>
-    internal bool DebugMode { get; set; } = false;
+    public Dictionary<string, string> Tags { get; set; } = [];
 }

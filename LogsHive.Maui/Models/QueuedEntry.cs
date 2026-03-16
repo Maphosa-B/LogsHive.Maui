@@ -4,7 +4,7 @@ namespace LogsHive.Maui.Models;
 /// Represents a single entry persisted to logshive_queue.json
 /// when the device is offline or receives a 429 response.
 /// </summary>
-public sealed class QueuedEntry
+internal sealed class QueuedEntry
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public ErrorPayload Payload { get; set; } = new();

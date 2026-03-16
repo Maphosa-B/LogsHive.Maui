@@ -1,26 +1,21 @@
-﻿using LogsHive.Maui.Extensions;
-using LogsHive.Maui.Services;
+﻿using LogsHive.Maui.Services;
 
 namespace LogsHive.Maui;
 
 /// <summary>
 /// Static facade for the LogsHive SDK.
 /// <para>
-/// <b>Setup</b> — call once in MauiProgram.cs or App.xaml.cs:
+/// <b>Setup</b> — call once in MauiProgram.cs:
 /// <code>
-/// LogsHiveClient.Configure()
-///     .UseSaaS()
-///     .WithApiKey("your-key")
-///     .WithAppName("MyApp")
-///     .ForProduction()
-///     .Initialize();
-/// </code>
-/// — or via the MauiAppBuilder extension:
-/// <code>
-/// builder.UseLogsHive()
-///     .UseSaaS()
-///     ...
-///     .Initialize();
+/// builder.UseLogsHive(op =>
+/// {
+///     op.Mode        = LogsHiveMode.SaaS;
+///     op.ApiKey      = "lh_your_api_key_here";
+///     op.ProjectId   = "your_project_id_here";
+///     op.AppName     = "MyApp";
+///     op.Environment = LogsHiveEnvironmentType.Production;
+///     op.Tags        = new() { ["environment"] = "production", ["tenant"] = "acme" };
+/// });
 /// </code>
 /// </para>
 /// <para>
@@ -29,12 +24,10 @@ namespace LogsHive.Maui;
 /// LogsHiveClient.Log("Something notable happened.");
 /// LogsHiveClient.Capture(exception);
 /// await LogsHiveClient.CaptureAsync(exception);
-/// </code>
-/// </para>
-/// <para>
-/// <b>Flush on resume</b> — call in App.OnStart / OnResume:
-/// <code>
-/// await LogsHiveClient.FlushAsync();
+///
+/// // With per-capture tags:
+/// LogsHiveClient.Log("User checked out", tags: new() { ["screen"] = "Checkout" });
+/// LogsHiveClient.Capture(ex, tags: new() { ["userId"] = "u_123" });
 /// </code>
 /// </para>
 /// </summary>
@@ -42,15 +35,8 @@ public static class LogsHiveClient
 {
     private static LogsHiveService? _service;
 
-    // ── Configuration ─────────────────────────────────────────────────────────
-
     /// <summary>
-    /// Returns a new <see cref="LogsHiveBuilder"/> for fluent configuration.
-    /// </summary>
-    public static LogsHiveBuilder Configure() => new LogsHiveBuilder();
-
-    /// <summary>
-    /// Called by <see cref="LogsHiveBuilder.Initialize"/> after building options.
+    /// Called internally by UseLogsHive() after options are validated.
     /// Not intended to be called directly.
     /// </summary>
     internal static void Initialize(LogsHiveService service)
@@ -62,39 +48,44 @@ public static class LogsHiveClient
     // ── Capture ───────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Sends a free-form log message to LogsHive.
-    /// Fire-and-forget; exceptions are swallowed internally.
+    /// Sends a free-form log message. Fire-and-forget.
     /// </summary>
-    public static void Log(string message)
+    /// <param name="message">The message to log.</param>
+    /// <param name="tags">Optional key-value tags merged with global tags.</param>
+    public static void Log(string message, Dictionary<string, string>? tags = null)
     {
         if (_service is null) return;
-        _ = _service.LogAsync(message);
+        _ = _service.LogAsync(message, tags);
     }
 
     /// <summary>
     /// Captures an exception synchronously (fire-and-forget).
     /// Safe to call from any thread.
     /// </summary>
-    public static void Capture(Exception exception)
+    /// <param name="exception">The exception to capture.</param>
+    /// <param name="tags">Optional key-value tags merged with global tags.</param>
+    public static void Capture(Exception exception, Dictionary<string, string>? tags = null)
     {
         if (_service is null) return;
-        _ = _service.CaptureAsync(exception);
+        _ = _service.CaptureAsync(exception, tags);
     }
 
     /// <summary>
     /// Captures an exception asynchronously.
     /// Awaitable — useful when you need to ensure delivery before continuing.
     /// </summary>
-    public static async Task CaptureAsync(Exception exception)
+    /// <param name="exception">The exception to capture.</param>
+    /// <param name="tags">Optional key-value tags merged with global tags.</param>
+    public static async Task CaptureAsync(Exception exception, Dictionary<string, string>? tags = null)
     {
         if (_service is null) return;
-        await _service.CaptureAsync(exception).ConfigureAwait(false);
+        await _service.CaptureAsync(exception, tags).ConfigureAwait(false);
     }
 
     // ── Queue management ──────────────────────────────────────────────────────
 
     /// <summary>
-    /// Flushes the offline queue. Call this in App.OnStart() and App.OnResume().\
+    /// Flushes the offline queue. Call this in App.OnStart() and App.OnResume().
     /// </summary>
     public static async Task FlushAsync()
     {
@@ -102,10 +93,19 @@ public static class LogsHiveClient
         await _service.FlushQueueAsync().ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Returns the number of events currently sitting in the offline queue.
+    /// </summary>
+    public static async Task<int> GetQueueCountAsync()
+    {
+        if (_service is null) return 0;
+        return await _service.GetQueueCountAsync().ConfigureAwait(false);
+    }
+
     // ── Diagnostics ───────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Returns true if the SDK has been initialized via <see cref="Configure"/>.
+    /// Returns true if the SDK has been initialized via UseLogsHive().
     /// </summary>
     public static bool IsInitialized => _service is not null;
 }

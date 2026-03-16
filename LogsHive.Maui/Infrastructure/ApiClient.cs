@@ -7,19 +7,20 @@ namespace LogsHive.Maui.Infrastructure;
 
 /// <summary>
 /// Responsible for POSTing <see cref="ErrorPayload"/> to the LogsHive API.
-/// Returns a <see cref="SendResult"/> indicating success, discard (401), or queue (429 / no network).
 /// </summary>
 internal sealed class ApiClient : IDisposable
 {
     private readonly HttpClient _http;
-    private readonly LogsHiveOptions _options;
 
     public ApiClient(LogsHiveOptions options)
     {
-        _options = options;
+        var baseUrl = options.Mode == LogsHiveMode.SelfHosted
+            ? options.SelfHostedUrl!
+            : LogsHiveConstants.SaaSBaseUrl;
+
         _http = new HttpClient
         {
-            BaseAddress = new Uri(options.BaseUrl),
+            BaseAddress = new Uri(baseUrl),
             Timeout = TimeSpan.FromSeconds(15)
         };
 
@@ -27,14 +28,6 @@ internal sealed class ApiClient : IDisposable
             _http.DefaultRequestHeaders.Add(LogsHiveConstants.ApiKeyHeader, options.ApiKey);
     }
 
-    /// <summary>
-    /// Sends the payload to the API.
-    /// </summary>
-    /// <returns>
-    /// <see cref="SendResult.Sent"/> on 2xx,
-    /// <see cref="SendResult.Discard"/> on 401,
-    /// <see cref="SendResult.Queue"/> on 429 or network failure.
-    /// </returns>
     public async Task<SendResult> SendAsync(ErrorPayload payload)
     {
         try
@@ -61,7 +54,6 @@ internal sealed class ApiClient : IDisposable
                 return SendResult.Queue;
             }
 
-            // Other server errors — queue for retry
             LogDebug($"[LogsHive] Unexpected status {(int)response.StatusCode} — queuing entry.");
             return SendResult.Queue;
         }

@@ -2,7 +2,8 @@ namespace LogsHive.Maui.Infrastructure;
 
 internal static class LogsHiveConstants
 {
-    public const string SaaSBaseUrl = "https://api.logshive.io";
+   // public const string SaaSBaseUrl = "https://localhost:7219";
+    public const string SaaSBaseUrl = "https://logs-hive-api.conversion-hive.com";
     public const string CaptureEndpoint = "/api/errors/capture";
     public const string ApiKeyHeader = "X-Api-Key";
     public const string QueueFileName = "logshive_queue.json";
