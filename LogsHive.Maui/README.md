@@ -44,15 +44,13 @@ X-Api-Key: your_api_key  (optional - you control auth on your own server)
 }
 ```
 
-The server source code and deployment guide are available at [github.com/logshive/logshive-server](https://github.com/logshive/logshive-server).
-
 ---
 
-### SaaS - Hosted by LogsHive
+### SaaS - Hosted by Conversion Hive
 
 Let us handle the infrastructure. Get a dashboard, alerts, and error grouping out of the box - with pricing in Rands.
 
-The SaaS API is hosted at `https://api.logshive.io`. You only need your API key and project ID - the URL is handled automatically by the SDK when `Mode = LogsHiveMode.SaaS`.
+The SaaS API is hosted at `https://logs-hive-api.conversion-hive.com`. You only need your API key and project ID - the URL is handled automatically by the SDK when `Mode = LogsHiveMode.SaaS`.
 
 ## Pricing
 
@@ -66,9 +64,9 @@ The SaaS API is hosted at `https://api.logshive.io`. You only need your API key 
 | Growth | $40 / month | 500,000 | 90 days | Production SaaS products |
 | Enterprise | Custom | Custom | Custom | Large teams and high-volume systems |
 
-Top-up available at R100 once-off for +50 000 events in the current period.
+Top-up available at $5 once-off for +30 000 events in the current period.
 
-Sign up and get your API key and project ID at [logshive.io](https://logshive.io).
+Sign up and get your API key and project ID at [Logs Hive](https://conversion-hive.com/logs-hive-details.html).
 
 ---
 
@@ -183,7 +181,7 @@ builder.UseLogsHive(op =>
 });
 ```
 
-> The SaaS API URL (`https://api.logshive.io`) is set automatically - you do not need to configure it.
+> The SaaS API URL (`https://logs-hive-api.conversion-hive.com`) is set automatically - you do not need to configure it.
 
 ### Self-hosted
 
@@ -241,7 +239,7 @@ builder.UseLogsHive(op =>
 |---|---|---|---|
 | `Mode` | `LogsHiveMode` | Yes | `SaaS` or `SelfHosted` |
 | `Environment` | `LogsHiveEnvironmentType` | Yes | `Production` (events sent) or `Debug` (no events sent) |
-| `ApiKey` | `string` | SaaS only | Your API key from [logshive.io](https://logshive.io) |
+| `ApiKey` | `string` | SaaS only | Your API key from [Logs Hive](https://conversion-hive.com/logs-hive-details.html) |
 | `ProjectId` | `string` | Yes | Your project ID — routes events to the correct project |
 | `AppName` | `string` | Yes | Human-readable name shown in the dashboard |
 | `SelfHostedUrl` | `string` | SelfHosted only | Base URL of your self-hosted instance |
