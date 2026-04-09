@@ -12,7 +12,7 @@ internal sealed class OfflineQueue
 {
     private readonly string _queuePath;
     private readonly SemaphoreSlim _lock = new(1, 1);
-    private readonly bool _debugLogging;
+    private readonly bool _localLogging;
 
     private static readonly JsonSerializerOptions _jsonOptions = new()
     {
@@ -20,9 +20,9 @@ internal sealed class OfflineQueue
         PropertyNameCaseInsensitive = true
     };
 
-    public OfflineQueue(bool debugLogging = false)
+    public OfflineQueue(bool localLogging = false)
     {
-        _debugLogging = debugLogging;
+        _localLogging = localLogging;
         _queuePath = Path.Combine(FileSystem.AppDataDirectory, LogsHiveConstants.QueueFileName);
     }
 
@@ -34,18 +34,17 @@ internal sealed class OfflineQueue
         {
             var entries = await ReadEntriesAsync().ConfigureAwait(false);
 
-            // Enforce max size — drop oldest entries first
             while (entries.Count >= LogsHiveConstants.MaxQueueSize)
                 entries.RemoveAt(0);
 
             entries.Add(new QueuedEntry { Payload = payload });
             await WriteEntriesAsync(entries).ConfigureAwait(false);
 
-            LogDebug($"[LogsHive] Queued entry. Queue size: {entries.Count}");
+            LogLocally($"[LogsHive] Queued entry. Queue size: {entries.Count}");
         }
         catch (Exception ex)
         {
-            LogDebug($"[LogsHive] Failed to queue entry: {ex.Message}");
+            LogLocally($"[LogsHive] Failed to queue entry: {ex.Message}");
         }
         finally
         {
@@ -65,7 +64,7 @@ internal sealed class OfflineQueue
             var entries = await ReadEntriesAsync().ConfigureAwait(false);
             if (entries.Count == 0) return;
 
-            LogDebug($"[LogsHive] Flushing {entries.Count} queued entries.");
+            LogLocally($"[LogsHive] Flushing {entries.Count} queued entries.");
 
             var remaining = new List<QueuedEntry>();
 
@@ -79,11 +78,11 @@ internal sealed class OfflineQueue
             }
 
             await WriteEntriesAsync(remaining).ConfigureAwait(false);
-            LogDebug($"[LogsHive] Flush complete. Remaining: {remaining.Count}");
+            LogLocally($"[LogsHive] Flush complete. Remaining: {remaining.Count}");
         }
         catch (Exception ex)
         {
-            LogDebug($"[LogsHive] Flush error: {ex.Message}");
+            LogLocally($"[LogsHive] Flush error: {ex.Message}");
         }
         finally
         {
@@ -120,7 +119,6 @@ internal sealed class OfflineQueue
         }
         catch
         {
-            // Corrupt file — start fresh
             return [];
         }
     }
@@ -131,14 +129,14 @@ internal sealed class OfflineQueue
         await File.WriteAllTextAsync(_queuePath, json).ConfigureAwait(false);
     }
 
-    private void LogDebug(string message)
+    private void LogLocally(string message)
     {
-        #if DEBUG
+        if (!_localLogging) return;
+
         #if ANDROID
                 Android.Util.Log.Debug("[LogsHive]", message);
         #else
-                    Debug.WriteLine(message);
-        #endif
+                Debug.WriteLine(message);
         #endif
     }
 }

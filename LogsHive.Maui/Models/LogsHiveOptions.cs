@@ -76,4 +76,12 @@ public sealed class LogsHiveOptions
     /// Per-capture tags are merged on top of these — per-capture wins on conflict.
     /// </summary>
     public Dictionary<string, string> Tags { get; set; } = [];
+
+    /// <summary>
+    /// When true, the SDK writes internal activity (requests, errors, queue
+    /// operations) to the device log output. Useful for verifying integration
+    /// during development regardless of <see cref="Environment"/>.
+    /// Default: false.
+    /// </summary>
+    public bool EnableLocalLogging { get; set; } = false;
 }

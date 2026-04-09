@@ -11,11 +11,11 @@ namespace LogsHive.Maui.Infrastructure;
 internal sealed class ApiClient : IDisposable
 {
     private readonly HttpClient _http;
-    private readonly bool _debugLogging;
+    private readonly bool _localLogging;
 
     public ApiClient(LogsHiveOptions options)
     {
-        _debugLogging = options.Environment == LogsHiveEnvironmentType.Debug;
+        _localLogging = options.EnableLocalLogging;
 
         var baseUrl = options.Mode == LogsHiveMode.SelfHosted
             ? options.SelfHostedUrl!
@@ -41,50 +41,50 @@ internal sealed class ApiClient : IDisposable
 
             if (response.IsSuccessStatusCode)
             {
-                LogDebug($"[LogsHive] Sent successfully ({(int)response.StatusCode}).");
+                LogLocally($"[LogsHive] Sent successfully ({(int)response.StatusCode}).");
                 return SendResult.Sent;
             }
 
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
-                LogDebug("[LogsHive] 401 Unauthorized — discarding entry.");
+                LogLocally("[LogsHive] 401 Unauthorized — discarding entry.");
                 return SendResult.Discard;
             }
 
             if (response.StatusCode == (HttpStatusCode)429)
             {
-                LogDebug("[LogsHive] 429 Too Many Requests — queuing entry.");
+                LogLocally("[LogsHive] 429 Too Many Requests — queuing entry.");
                 return SendResult.Queue;
             }
 
-            LogDebug($"[LogsHive] Unexpected status {(int)response.StatusCode} — queuing entry.");
+            LogLocally($"[LogsHive] Unexpected status {(int)response.StatusCode} — queuing entry.");
             return SendResult.Queue;
         }
         catch (HttpRequestException ex)
         {
-            LogDebug($"[LogsHive] Network error — queuing entry. ({ex.Message})");
+            LogLocally($"[LogsHive] Network error — queuing entry. ({ex.Message})");
             return SendResult.Queue;
         }
         catch (TaskCanceledException)
         {
-            LogDebug("[LogsHive] Request timed out — queuing entry.");
+            LogLocally("[LogsHive] Request timed out — queuing entry.");
             return SendResult.Queue;
         }
         catch (Exception ex)
         {
-            LogDebug($"[LogsHive] Unexpected error — queuing entry. ({ex.Message})");
+            LogLocally($"[LogsHive] Unexpected error — queuing entry. ({ex.Message})");
             return SendResult.Queue;
         }
     }
 
-    private void LogDebug(string message)
+    private void LogLocally(string message)
     {
-        #if DEBUG
+        if (!_localLogging) return;
+
         #if ANDROID
                 Android.Util.Log.Debug("[LogsHive]", message);
         #else
-            Debug.WriteLine(message);
-        #endif
+                Debug.WriteLine(message);
         #endif
     }
 

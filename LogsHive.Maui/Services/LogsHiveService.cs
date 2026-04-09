@@ -20,12 +20,14 @@ internal sealed class LogsHiveService : IDisposable
     private readonly ApiClient _apiClient;
     private readonly OfflineQueue _queue;
     private readonly IDeviceInfoProvider _deviceInfo;
+    private readonly bool _localLogging;
 
     public LogsHiveService(LogsHiveOptions options, IDeviceInfoProvider? deviceInfo = null)
     {
         _options = options;
+        _localLogging = options.EnableLocalLogging;
         _apiClient = new ApiClient(options);
-        _queue = new OfflineQueue(debugLogging: options.Environment == LogsHiveEnvironmentType.Debug);
+        _queue = new OfflineQueue(localLogging: options.EnableLocalLogging);
         _deviceInfo = deviceInfo ?? CreatePlatformProvider();
     }
 
@@ -33,17 +35,17 @@ internal sealed class LogsHiveService : IDisposable
 
     private static IDeviceInfoProvider CreatePlatformProvider()
     {
-#if ANDROID
-        return new AndroidDeviceInfoProvider();
-#elif IOS
-        return new iOSDeviceInfoProvider();
-#elif MACCATALYST
-        return new MacCatalystDeviceInfoProvider();
-#elif WINDOWS
-        return new WindowsDeviceInfoProvider();
-#else
-        return new DefaultDeviceInfoProvider();
-#endif
+        #if ANDROID
+                return new AndroidDeviceInfoProvider();
+        #elif IOS
+                return new iOSDeviceInfoProvider();
+        #elif MACCATALYST
+                return new MacCatalystDeviceInfoProvider();
+        #elif WINDOWS
+                return new WindowsDeviceInfoProvider();
+        #else
+                return new DefaultDeviceInfoProvider();
+        #endif
     }
 
     // ── Public capture methods ───────────────────────────────────────────────
@@ -97,7 +99,7 @@ internal sealed class LogsHiveService : IDisposable
             case SendResult.Sent:
                 break;
             case SendResult.Discard:
-                LogDebug("[LogsHive] Entry discarded (401).");
+                LogLocally("[LogsHive] Entry discarded (401).");
                 break;
             case SendResult.Queue:
                 await _queue.EnqueueAsync(payload).ConfigureAwait(false);
@@ -107,7 +109,6 @@ internal sealed class LogsHiveService : IDisposable
 
     private ErrorPayload BuildBasePayload(Dictionary<string, string>? perCaptureTags = null)
     {
-        // Start with global tags, then overlay per-capture tags (per-capture wins on conflict)
         var mergedTags = new Dictionary<string, string>(_options.Tags);
         if (perCaptureTags is not null)
             foreach (var (key, value) in perCaptureTags)
@@ -130,20 +131,20 @@ internal sealed class LogsHiveService : IDisposable
     {
         if (_options.Environment != LogsHiveEnvironmentType.Production)
         {
-            LogDebug($"[LogsHive] Skipping capture — environment is {_options.Environment}.");
+            LogLocally($"Skipping capture — environment is {_options.Environment}.");
             return false;
         }
         return true;
     }
 
-    private void LogDebug(string message)
+    private void LogLocally(string message)
     {
-        #if DEBUG
+        if (!_localLogging) return;
+
         #if ANDROID
                 Android.Util.Log.Debug("[LogsHive]", message);
         #else
                 Debug.WriteLine(message);
-        #endif
         #endif
     }
 

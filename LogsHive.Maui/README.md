@@ -48,12 +48,11 @@ X-Api-Key: your_api_key  (optional - you control auth on your own server)
 
 ### SaaS - Hosted by Conversion Hive
 
-Let us handle the infrastructure. Get a dashboard, alerts, and error grouping out of the box - with pricing in Rands.
+Let us handle the infrastructure. Get a dashboard, alerts, and error grouping out of the box.
 
 The SaaS API is hosted at `https://logs-hive-api.conversion-hive.com`. You only need your API key and project ID - the URL is handled automatically by the SDK when `Mode = LogsHiveMode.SaaS`.
 
 ## Pricing
-
 
 | Plan | Price | Events / Month | Retention | Best For |
 |-----|------|---------------|-----------|---------|
@@ -97,10 +96,10 @@ public static class MauiProgram
 
         builder.UseLogsHive(op =>
         {
-            op.Mode       = LogsHiveMode.SaaS;
-            op.ApiKey     = "lh_your_api_key_here";
-            op.ProjectId  = "your_project_id_here";
-            op.AppName    = "MyApp";
+            op.Mode        = LogsHiveMode.SaaS;
+            op.ApiKey      = "lh_your_api_key_here";
+            op.ProjectId   = "your_project_id_here";
+            op.AppName     = "MyApp";
             op.Environment = LogsHiveEnvironmentType.Production;
         });
 
@@ -187,11 +186,11 @@ builder.UseLogsHive(op =>
 ```csharp
 builder.UseLogsHive(op =>
 {
-    op.Mode           = LogsHiveMode.SelfHosted;
-    op.SelfHostedUrl  = "https://logs.yourcompany.com";
-    op.ProjectId      = "your_project_id_here";
-    op.AppName        = "MyApp";
-    op.Environment    = LogsHiveEnvironmentType.Production;
+    op.Mode          = LogsHiveMode.SelfHosted;
+    op.SelfHostedUrl = "https://logs.yourcompany.com";
+    op.ProjectId     = "your_project_id_here";
+    op.AppName       = "MyApp";
+    op.Environment   = LogsHiveEnvironmentType.Production;
 });
 ```
 
@@ -212,6 +211,26 @@ builder.UseLogsHive(op =>
 
 In debug mode the SDK is **inactive** - no events are sent or queued. All SDK activity is written to `Debug.WriteLine` so you can verify the plumbing in Visual Studio's Output window.
 
+### Enable local logging
+
+Want to see SDK activity in your Output window while running in Production mode? Enable local logging:
+
+```csharp
+builder.UseLogsHive(op =>
+{
+    op.Mode               = LogsHiveMode.SaaS;
+    op.ApiKey             = "lh_your_api_key_here";
+    op.ProjectId          = "your_project_id_here";
+    op.AppName            = "MyApp";
+    op.Environment        = LogsHiveEnvironmentType.Production;
+    op.EnableLocalLogging = true;
+});
+```
+
+With `EnableLocalLogging = true` the SDK writes all internal activity — successful sends, 401s, 429s, queue operations, and network errors — to `Debug.WriteLine` (or `Android.Util.Log` on Android). This is independent of `Environment` so you can verify your integration is working in a production build without changing capture behaviour.
+
+> Tip: disable this before shipping to avoid unnecessary output in release builds.
+
 ### Switch automatically by build
 
 ```csharp
@@ -223,7 +242,8 @@ builder.UseLogsHive(op =>
     op.AppName   = "MyApp";
 
 #if DEBUG
-    op.Environment = LogsHiveEnvironmentType.Debug;
+    op.Environment        = LogsHiveEnvironmentType.Debug;
+    op.EnableLocalLogging = true;
 #else
     op.Environment = LogsHiveEnvironmentType.Production;
 #endif
@@ -234,14 +254,16 @@ builder.UseLogsHive(op =>
 
 ## Options reference
 
-| Property | Type | Required | Description |
-|---|---|---|---|
-| `Mode` | `LogsHiveMode` | Yes | `SaaS` or `SelfHosted` |
-| `Environment` | `LogsHiveEnvironmentType` | Yes | `Production` (events sent) or `Debug` (no events sent) |
-| `ApiKey` | `string` | SaaS only | Your API key from [Logs Hive](https://conversion-hive.com/logs-hive-details.html) |
-| `ProjectId` | `string` | Yes | Your project ID — routes events to the correct project |
-| `AppName` | `string` | Yes | Human-readable name shown in the dashboard |
-| `SelfHostedUrl` | `string` | SelfHosted only | Base URL of your self-hosted instance |
+| Property | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `Mode` | `LogsHiveMode` | Yes | `SaaS` | `SaaS` or `SelfHosted` |
+| `Environment` | `LogsHiveEnvironmentType` | Yes | `Debug` | `Production` (events sent) or `Debug` (no events sent) |
+| `ApiKey` | `string` | SaaS only | `null` | Your API key from [Logs Hive](https://conversion-hive.com/logs-hive-details.html) |
+| `ProjectId` | `string` | Yes | — | Your project ID — routes events to the correct project |
+| `AppName` | `string` | Yes | `UnknownApp` | Human-readable name shown in the dashboard |
+| `SelfHostedUrl` | `string` | SelfHosted only | `null` | Base URL of your self-hosted instance |
+| `EnableLocalLogging` | `bool` | No | `false` | Writes SDK activity to the Output window. Independent of `Environment` |
+| `Tags` | `Dictionary<string, string>` | No | `{}` | Global tags attached to every captured event |
 
 ---
 
