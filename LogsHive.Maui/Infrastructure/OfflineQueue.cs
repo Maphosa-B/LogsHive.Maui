@@ -134,7 +134,7 @@ internal sealed class OfflineQueue
         if (!_localLogging) return;
 
         #if ANDROID
-                Android.Util.Log.Debug(null, message);
+                Android.Util.Log.Debug("[LogsHive]", message);
         #else
                 Debug.WriteLine(message);
         #endif

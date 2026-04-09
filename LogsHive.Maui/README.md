@@ -227,7 +227,7 @@ builder.UseLogsHive(op =>
 });
 ```
 
-With `EnableLocalLogging = true` the SDK writes all internal activity — successful sends, 401s, 429s, queue operations, and network errors — to `Debug.WriteLine` (or `Android.Util.Log` on Android). This is independent of `Environment` so you can verify your integration is working in a production build without changing capture behaviour.
+With `EnableLocalConsoleLogging  = true` the SDK writes all internal activity — successful sends, 401s, 429s, queue operations, and network errors - to `Debug.WriteLine` (or `Android.Util.Log` on Android). This is independent of `Environment` so you can verify your integration is working in a production build without changing capture behaviour.
 
 > Tip: disable this before shipping to avoid unnecessary output in release builds.
 
@@ -242,7 +242,7 @@ builder.UseLogsHive(op =>
     op.AppName   = "MyApp";
 
 #if DEBUG
-    op.Environment        = LogsHiveEnvironmentType.Debug;
+    op.Environment = LogsHiveEnvironmentType.Debug;
     op.EnableLocalConsoleLogging = true;
 #else
     op.Environment = LogsHiveEnvironmentType.Production;

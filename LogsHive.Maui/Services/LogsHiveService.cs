@@ -129,12 +129,7 @@ internal sealed class LogsHiveService : IDisposable
 
     private bool ShouldCapture()
     {
-        if (_options.Environment != LogsHiveEnvironmentType.Production)
-        {
-            LogLocally($"Skipping capture — environment is {_options.Environment}.");
-            return false;
-        }
-        return true;
+        return _options.EnableLocalConsoleLogging;
     }
 
     private void LogLocally(string message)
@@ -142,7 +137,7 @@ internal sealed class LogsHiveService : IDisposable
         if (!_localLogging) return;
 
         #if ANDROID
-                Android.Util.Log.Debug(null, message);
+                Android.Util.Log.Debug("[LogsHive]", message);
         #else
                 Debug.WriteLine(message);
         #endif
