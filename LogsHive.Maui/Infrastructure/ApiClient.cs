@@ -11,9 +11,12 @@ namespace LogsHive.Maui.Infrastructure;
 internal sealed class ApiClient : IDisposable
 {
     private readonly HttpClient _http;
+    private readonly bool _debugLogging;
 
     public ApiClient(LogsHiveOptions options)
     {
+        _debugLogging = options.Environment == LogsHiveEnvironmentType.Debug;
+
         var baseUrl = options.Mode == LogsHiveMode.SelfHosted
             ? options.SelfHostedUrl!
             : LogsHiveConstants.SaaSBaseUrl;
@@ -74,8 +77,16 @@ internal sealed class ApiClient : IDisposable
         }
     }
 
-    [Conditional("DEBUG")]
-    private static void LogDebug(string message) => Debug.WriteLine(message);
+    private void LogDebug(string message)
+    {
+        #if DEBUG
+        #if ANDROID
+                Android.Util.Log.Debug("[LogsHive]", message);
+        #else
+            Debug.WriteLine(message);
+        #endif
+        #endif
+    }
 
     public void Dispose() => _http.Dispose();
 }

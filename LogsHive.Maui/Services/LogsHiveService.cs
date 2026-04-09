@@ -25,7 +25,7 @@ internal sealed class LogsHiveService : IDisposable
     {
         _options = options;
         _apiClient = new ApiClient(options);
-        _queue = new OfflineQueue();
+        _queue = new OfflineQueue(debugLogging: options.Environment == LogsHiveEnvironmentType.Debug);
         _deviceInfo = deviceInfo ?? CreatePlatformProvider();
     }
 
@@ -136,8 +136,16 @@ internal sealed class LogsHiveService : IDisposable
         return true;
     }
 
-    [Conditional("DEBUG")]
-    private static void LogDebug(string message) => Debug.WriteLine(message);
+    private void LogDebug(string message)
+    {
+        #if DEBUG
+        #if ANDROID
+                Android.Util.Log.Debug("[LogsHive]", message);
+        #else
+                Debug.WriteLine(message);
+        #endif
+        #endif
+    }
 
     public void Dispose() => _apiClient.Dispose();
 }

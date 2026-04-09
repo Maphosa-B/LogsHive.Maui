@@ -54,7 +54,6 @@ The SaaS API is hosted at `https://logs-hive-api.conversion-hive.com`. You only 
 
 ## Pricing
 
-## Pricing
 
 | Plan | Price | Events / Month | Retention | Best For |
 |-----|------|---------------|-----------|---------|

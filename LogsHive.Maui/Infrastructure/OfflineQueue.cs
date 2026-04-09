@@ -12,6 +12,7 @@ internal sealed class OfflineQueue
 {
     private readonly string _queuePath;
     private readonly SemaphoreSlim _lock = new(1, 1);
+    private readonly bool _debugLogging;
 
     private static readonly JsonSerializerOptions _jsonOptions = new()
     {
@@ -19,8 +20,9 @@ internal sealed class OfflineQueue
         PropertyNameCaseInsensitive = true
     };
 
-    public OfflineQueue()
+    public OfflineQueue(bool debugLogging = false)
     {
+        _debugLogging = debugLogging;
         _queuePath = Path.Combine(FileSystem.AppDataDirectory, LogsHiveConstants.QueueFileName);
     }
 
@@ -129,6 +131,14 @@ internal sealed class OfflineQueue
         await File.WriteAllTextAsync(_queuePath, json).ConfigureAwait(false);
     }
 
-    [Conditional("DEBUG")]
-    private static void LogDebug(string message) => Debug.WriteLine(message);
+    private void LogDebug(string message)
+    {
+        #if DEBUG
+        #if ANDROID
+                Android.Util.Log.Debug("[LogsHive]", message);
+        #else
+                    Debug.WriteLine(message);
+        #endif
+        #endif
+    }
 }
