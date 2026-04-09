@@ -15,7 +15,7 @@ internal sealed class ApiClient : IDisposable
 
     public ApiClient(LogsHiveOptions options)
     {
-        _localLogging = options.EnableLocalLogging;
+        _localLogging = options.EnableLocalConsoleLogging;
 
         var baseUrl = options.Mode == LogsHiveMode.SelfHosted
             ? options.SelfHostedUrl!
@@ -82,7 +82,7 @@ internal sealed class ApiClient : IDisposable
         if (!_localLogging) return;
 
         #if ANDROID
-                Android.Util.Log.Debug("[LogsHive]", message);
+                Android.Util.Log.Debug(null, message);
         #else
                 Debug.WriteLine(message);
         #endif

@@ -211,9 +211,9 @@ builder.UseLogsHive(op =>
 
 In debug mode the SDK is **inactive** - no events are sent or queued. All SDK activity is written to `Debug.WriteLine` so you can verify the plumbing in Visual Studio's Output window.
 
-### Enable local logging
+### Enable local console logging
 
-Want to see SDK activity in your Output window while running in Production mode? Enable local logging:
+Want to see SDK activity in your Output window while running in Production mode? Enable local console logging:
 
 ```csharp
 builder.UseLogsHive(op =>
@@ -223,7 +223,7 @@ builder.UseLogsHive(op =>
     op.ProjectId          = "your_project_id_here";
     op.AppName            = "MyApp";
     op.Environment        = LogsHiveEnvironmentType.Production;
-    op.EnableLocalLogging = true;
+    op.EnableLocalConsoleLogging = true;
 });
 ```
 
@@ -243,7 +243,7 @@ builder.UseLogsHive(op =>
 
 #if DEBUG
     op.Environment        = LogsHiveEnvironmentType.Debug;
-    op.EnableLocalLogging = true;
+    op.EnableLocalConsoleLogging = true;
 #else
     op.Environment = LogsHiveEnvironmentType.Production;
 #endif

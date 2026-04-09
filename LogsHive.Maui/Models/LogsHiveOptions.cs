@@ -83,5 +83,5 @@ public sealed class LogsHiveOptions
     /// during development regardless of <see cref="Environment"/>.
     /// Default: false.
     /// </summary>
-    public bool EnableLocalLogging { get; set; } = false;
+    public bool EnableLocalConsoleLogging { get; set; } = true;
 }

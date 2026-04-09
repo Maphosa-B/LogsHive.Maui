@@ -25,9 +25,9 @@ internal sealed class LogsHiveService : IDisposable
     public LogsHiveService(LogsHiveOptions options, IDeviceInfoProvider? deviceInfo = null)
     {
         _options = options;
-        _localLogging = options.EnableLocalLogging;
+        _localLogging = options.EnableLocalConsoleLogging;
         _apiClient = new ApiClient(options);
-        _queue = new OfflineQueue(localLogging: options.EnableLocalLogging);
+        _queue = new OfflineQueue(localLogging: options.EnableLocalConsoleLogging);
         _deviceInfo = deviceInfo ?? CreatePlatformProvider();
     }
 
@@ -142,7 +142,7 @@ internal sealed class LogsHiveService : IDisposable
         if (!_localLogging) return;
 
         #if ANDROID
-                Android.Util.Log.Debug("[LogsHive]", message);
+                Android.Util.Log.Debug(null, message);
         #else
                 Debug.WriteLine(message);
         #endif
