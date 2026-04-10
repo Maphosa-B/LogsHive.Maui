@@ -1,6 +1,6 @@
 #if MACCATALYST
 using Foundation;
-using LogsHive.Maui.Services;
+using LogsHive.Maui.Interfaces;
 
 namespace LogsHive.Maui.Platforms.MacCatalyst;
 

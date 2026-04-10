@@ -19,7 +19,7 @@
 
 		<!-- NuGet Package Metadata -->
 		<PackageId>LogsHive.Maui</PackageId>
-		<Version>1.0.8</Version>
+		<Version>1.0.14</Version>
 		<Authors>Bonginkosi Maphosa</Authors>
 		<Company>Conversion Hive</Company>
 		<Product>LogsHive.Maui</Product>
@@ -44,13 +44,13 @@
 	<!-- Dependencies -->
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 	</ItemGroup>
 
 	<!-- Ensure README and icon are packed -->
 	<ItemGroup>
-		<None Include="README.md" Pack="true" PackagePath="\"/>
-		<None Include="bee.png" Pack="true" PackagePath="\"/>
+		<None Include="README.md" Pack="true" PackagePath="\" />
+		<None Include="bee.png" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
 </Project>

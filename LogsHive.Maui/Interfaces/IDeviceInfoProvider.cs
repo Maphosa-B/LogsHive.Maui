@@ -1,4 +1,4 @@
-namespace LogsHive.Maui.Services;
+namespace LogsHive.Maui.Interfaces;
 
 /// <summary>
 /// Abstracts device/environment metadata so platform implementations

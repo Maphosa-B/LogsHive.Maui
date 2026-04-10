@@ -1,6 +1,6 @@
 #if ANDROID
 using Android.OS;
-using LogsHive.Maui.Services;
+using LogsHive.Maui.Interfaces;
 
 namespace LogsHive.Maui.Platforms.Android;
 

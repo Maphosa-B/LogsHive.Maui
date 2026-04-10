@@ -1,5 +1,5 @@
 #if WINDOWS
-using LogsHive.Maui.Services;
+using LogsHive.Maui.Interfaces;
 
 namespace LogsHive.Maui.Platforms.Windows;
 

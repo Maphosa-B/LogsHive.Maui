@@ -1,5 +1,5 @@
 #if IOS
-using LogsHive.Maui.Services;
+using LogsHive.Maui.Interfaces;
 using UIKit;
 
 namespace LogsHive.Maui.Platforms.iOS;

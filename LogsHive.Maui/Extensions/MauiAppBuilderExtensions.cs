@@ -1,3 +1,4 @@
+using LogsHive.Maui.Infrastructure;
 using LogsHive.Maui.Models;
 using LogsHive.Maui.Services;
 
@@ -15,11 +16,16 @@ public static class MauiAppBuilderExtensions
     /// <code>
     /// builder.UseLogsHive(op =>
     /// {
-    ///     op.Mode = LogsHiveMode.SaaS;
-    ///     op.ApiKey = "lh_your_api_key_here";
-    ///     op.ProjectId = "your_project_id_here";
-    ///     op.AppName = "MyApp";
-    ///     op.Environment = LogsHiveEnvironmentType.Production;
+    ///     op.Mode                      = LogsHiveMode.SaaS;
+    ///     op.ApiKey                    = "lh_your_api_key_here";
+    ///     op.ProjectId                 = "your_project_id_here";
+    ///     op.AppName                   = "MyApp";
+    ///     op.SendToServer              = true;
+    ///     op.EnableLocalConsoleLogging = true;
+    ///
+    ///     // optional memory leak detection
+    ///     op.EnableMemoryMonitoring          = true;
+    ///     op.MemoryMonitoringIntervalSeconds = 30;
     /// });
     /// </code>
     /// </example>
@@ -30,18 +36,21 @@ public static class MauiAppBuilderExtensions
 
         Validate(options);
 
-        // Resolve base URL
-        if (options.Mode == LogsHiveMode.SelfHosted)
-        {
-            if (string.IsNullOrWhiteSpace(options.SelfHostedUrl))
-                throw new InvalidOperationException(
-                    "SelfHostedUrl must be set when Mode is LogsHiveMode.SelfHosted.");
-
-            options.SelfHostedUrl = options.SelfHostedUrl!.TrimEnd('/');
-        }
+        // resolve base URL once — ApiClient appends endpoint suffixes to this
+        options.ResolvedBaseUrl = options.Mode == LogsHiveMode.SelfHosted
+            ? options.SelfHostedUrl!.TrimEnd('/')
+            : LogsHiveConstants.SaaSBaseUrl;
 
         var service = new LogsHiveService(options);
         LogsHiveClient.Initialize(service);
+
+        // start background memory monitor if opted in
+        // Task.Run with async lambda ensures exceptions propagate correctly
+        if (options.EnableMemoryMonitoring)
+        {
+            var monitor = new MemoryMonitorService(options, service);
+            _ = Task.Run(async () => await monitor.StartAsync());
+        }
 
         return builder;
     }
@@ -55,5 +64,16 @@ public static class MauiAppBuilderExtensions
         if (string.IsNullOrWhiteSpace(options.ProjectId))
             throw new InvalidOperationException(
                 "ProjectId is required. Set op.ProjectId before calling UseLogsHive.");
+
+        if (options.Mode == LogsHiveMode.SelfHosted && string.IsNullOrWhiteSpace(options.SelfHostedUrl))
+            throw new InvalidOperationException(
+                "SelfHostedUrl must be set when Mode is LogsHiveMode.SelfHosted.");
+
+        // only validate interval when memory monitoring is actually enabled
+        // avoids crashing apps that set this property while monitoring is off
+        if (options.EnableMemoryMonitoring && options.MemoryMonitoringIntervalSeconds < 10)
+            throw new InvalidOperationException(
+                "MemoryMonitoringIntervalSeconds must be at least 10 seconds. " +
+                "The default is 30 — only change this if you need a faster interval.");
     }
 }

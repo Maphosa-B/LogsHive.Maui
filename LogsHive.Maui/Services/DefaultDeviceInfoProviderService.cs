@@ -1,10 +1,12 @@
+using LogsHive.Maui.Interfaces;
+
 namespace LogsHive.Maui.Services;
 
 /// <summary>
 /// Default implementation of <see cref="IDeviceInfoProvider"/> using
 /// Microsoft.Maui.Devices APIs.
 /// </summary>
-internal sealed class DefaultDeviceInfoProvider : IDeviceInfoProvider
+internal sealed class DefaultDeviceInfoProviderService : IDeviceInfoProvider
 {
     public string Platform => DeviceInfo.Current.Platform.ToString();
 
