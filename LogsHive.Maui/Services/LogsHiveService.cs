@@ -25,6 +25,7 @@ internal sealed class LogsHiveService : IDisposable
 
     // generated once per app session — groups all snapshots from this run
     private readonly string _sessionId = Guid.NewGuid().ToString("N")[..10];
+    private readonly string _installationId;
 
     public LogsHiveService(LogsHiveOptions options, IDeviceInfoProvider? deviceInfo = null)
     {
@@ -33,6 +34,7 @@ internal sealed class LogsHiveService : IDisposable
         _apiClient = new ApiClient(options);
         _queue = new OfflineQueue(localLogging: options.EnableLocalConsoleLogging);
         _deviceInfo = deviceInfo ?? CreatePlatformProvider();
+        _installationId = GetInstallationId();
     }
 
     // ── Platform provider factory ─────────────────────────────────────────────
@@ -177,6 +179,8 @@ internal sealed class LogsHiveService : IDisposable
             AppVersion = _deviceInfo.AppVersion,
             DeviceModel = _deviceInfo.DeviceModel,
             CapturedAt = DateTimeOffset.UtcNow,
+            InstallationId = _installationId,
+            SessionId = _sessionId,
             Tags = mergedTags
         };
     }
@@ -232,4 +236,22 @@ internal sealed class LogsHiveService : IDisposable
     }
 
     public void Dispose() => _apiClient.Dispose();
+
+
+    private static string GetInstallationId()
+    {
+        const string key = "logshive_installation_id";
+
+        var existing = Preferences.Get(key, null);
+
+        if (!string.IsNullOrEmpty(existing))
+            return existing;
+
+
+        var id = Guid.NewGuid().ToString("N");
+
+        Preferences.Set(key, id);
+
+        return id;
+    }
 }

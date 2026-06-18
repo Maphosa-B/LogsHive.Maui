@@ -17,7 +17,8 @@ internal sealed class ErrorPayload
     public string DeviceModel { get; set; } = string.Empty;
     public DateTimeOffset CapturedAt { get; set; } = DateTimeOffset.UtcNow;
     public string? LogMessage { get; set; }
-
+    public string InstallationId { get; set; } = string.Empty;
+    public string SessionId { get; set; } = string.Empty;
     /// <summary>
     /// Arbitrary key-value pairs attached to this event.
     /// Merged from global tags (set via LogsHiveOptions.Tags)
