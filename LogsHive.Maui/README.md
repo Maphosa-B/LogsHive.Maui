@@ -32,7 +32,7 @@ LogsHive is in early access, and right now that means one thing: it's free to us
 
 Formal pricing tiers are on the way, shaped by what early users actually need rather than a guess. Get in now and you get the SDK for free during that window, with no card required.
 
-Sign up and get your API key and project ID at [Logs Hive](https://conversion-hive.com/logs-hive-details.html).
+Sign up and get your API key and project ID at [Logs Hive](https://logs-hive.conversion-hive.com/register).
 
 ---
 
