@@ -237,17 +237,28 @@ X-Api-Key: your_api_key
 {
   "appName": "MyApp",
   "projectId": "your_project_id_here",
+
   "exceptionType": "System.NullReferenceException",
   "message": "Object reference not set to an instance of an object.",
   "stackTrace": "at MyApp.HomePage.LoadData()",
   "source": "MyApp.HomePage",
+
   "platform": "Android",
   "operatingSystem": "Android 14 (API 34)",
   "appVersion": "1.0.3",
   "deviceModel": "Samsung Galaxy S23",
+
   "capturedAt": "2026-03-16T10:45:00Z",
+
   "logMessage": null,
-  "tags": {}
+
+  "installationId": "a8f93c2e1b7f4d91",
+  "sessionId": "7ac92fd301",
+
+  "tags": {
+    "Environment": "Production",
+    "UserFlow": "Checkout"
+  }
 }
 ```
 

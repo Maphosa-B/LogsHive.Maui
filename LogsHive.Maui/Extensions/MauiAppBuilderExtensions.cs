@@ -29,6 +29,8 @@ public static class MauiAppBuilderExtensions
     /// });
     /// </code>
     /// </example>
+    /// 
+    private static UnhandledExceptionService? _unhandledExceptionHandler;
     public static MauiAppBuilder UseLogsHive(this MauiAppBuilder builder, Action<LogsHiveOptions> configure)
     {
         var options = new LogsHiveOptions();
@@ -43,6 +45,10 @@ public static class MauiAppBuilderExtensions
 
         var service = new LogsHiveService(options);
         LogsHiveClient.Initialize(service);
+
+
+        _unhandledExceptionHandler = new UnhandledExceptionService(service);
+        _unhandledExceptionHandler.Register();
 
         // start background memory monitor if opted in
         // Task.Run with async lambda ensures exceptions propagate correctly
